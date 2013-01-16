@@ -104,6 +104,12 @@ group_Except a b =	group_Except' a b False False False
 					hasB' = if (b!!0 == min) then not hasB else hasB
 					has' = hasA' && (not hasB')
 
-
-
+-- Computes the size of a group.
+group_Size ::		[Int] -> Int
+group_Size [] =		0
+group_Size a =		diff + rest
+			where
+			slice = take 2 a
+			diff = slice!!1 - slice!!0
+			rest = (group_Size (drop 2 a))
 
