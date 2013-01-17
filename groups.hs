@@ -123,13 +123,23 @@ group_Filter a g =	group_Filter' a gm
 			group_Filter' [] [] = []
 			group_Filter' a [] = []
 			group_Filter' a g = 
-				first ++ rest
+				if beyond_end then []
+				else first ++ rest
 				where
 				index = (head g)
 				beyond_end = index >= (length a)
-				first = if beyond_end then [] else [a !! index]
+				first = [a !! index]
 				rest = (group_Filter' a (tail g))
 
+-- Returns a group of the even items.
+group_Even ::		() -> [Int]
+group_Even () = 	group_Even' 0
+			where
+			group_Even' i = [i,(i+1)] ++ group_Even' (i+2)
 
-
+-- Returns a group of the odd items.
+group_Odd ::		() -> [Int]
+group_Odd () = 		group_Odd' 1
+			where
+			group_Odd' i = [i,(i+1)] ++ group_Odd' (i+2)
 
