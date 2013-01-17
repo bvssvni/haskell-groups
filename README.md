@@ -1,7 +1,9 @@
 haskell-groups
 ==============
 
-Group oriented programming in Haskell.
+Group oriented programming in Haskell.  
+BSD license.  
+For version log, view the individual files.  
 
 To use this library, install ![Haskell Platform](http://www.haskell.org/platform/)  
 
