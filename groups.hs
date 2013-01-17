@@ -143,3 +143,36 @@ group_Odd () = 		group_Odd' 1
 			where
 			group_Odd' i = [i,(i+1)] ++ group_Odd' (i+2)
 
+-- Removes equal numbers from group, which has no effect since they cancel each other.
+group_RemoveDuplicates :: [Int] -> [Int]
+group_RemoveDuplicates [] = []
+group_RemoveDuplicates a =
+			first ++ group_RemoveDuplicates rest
+			where
+			same = if length a == 1 then False else a!!0 == a!!1
+			first = if same then [] else [head a]
+			rest = if same then drop 2 a else tail a
+
+-- Transforms a group 'b' into the internal index space of 'a'.
+-- This method is useful when a group filters a list and you want other groups to do it as well.
+group_Transform ::	[Int] -> [Int] -> [Int]
+group_Transform a b =	group_RemoveDuplicates (group_Transform' a b False False False 0 0)
+			where
+			group_Transform' :: [Int] -> [Int] -> Bool -> Bool -> Bool -> Int -> Int -> [Int]
+			group_Transform' [] [] hasA hasB was offset last = []
+			group_Transform' a [] hasA hasB was offset last = []
+			group_Transform' [] b hasA hasB was offset last = []
+			group_Transform' a b hasA hasB was offset last =
+				(if has' /= was then [min - offset'] else []) ++ 
+				(group_Transform' a' b' hasA' hasB' has' offset' last')
+				where
+				min = (group_Min a b)
+				a' = (group_Next a min)
+				b' = (group_Next b min)
+				hasA' = if (a!!0 == min) then not hasA else hasA
+				hasB' = if (b!!0 == min) then not hasB else hasB
+				offset' = if hasA' && (a!!0 == min) then offset + min - last else offset
+				has' = hasA' && hasB'
+				last' = if has' /= was then min else last
+
+
