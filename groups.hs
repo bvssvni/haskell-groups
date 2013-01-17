@@ -31,24 +31,19 @@ either expressed or implied, of the FreeBSD Project.
 
 -}
 
-
-import Data.Dynamic
-
-
 -- This function is used for accessing all the indices contained by a group. 
 group_Index :: 		[Int] -> [Int]
-group_Index a = 	[a!!0 .. (a!!1 - 1)] ++ 
-			if null (drop 2 a) then []
-			else group_Index (drop 2 a)
+group_Index [] =        []
+group_Index (a:b:rest) =
+                       	[a .. (b - 1)] ++ group_Index rest
 
 -- Returns the smallest value of two lists.
 group_Min :: 		[Int] -> [Int] -> Int
-group_Min a b =		if (head a) <= (head b) then head a
-			else head b
+group_Min (a:_) (b:_) =	min a b
 
 -- Advances a list if 'i' matches the first.
 group_Next :: 		[Int] -> Int -> [Int]
-group_Next a i =	if (a!!0) == i then (tail a) else a
+group_Next (a:rest) i =	if a == i then rest else a:rest
 
 -- Joins two groups together with Boolean Union operation (Or).
 group_Or ::		[Int] -> [Int] -> [Int]
@@ -110,26 +105,17 @@ group_Except a b =	group_Except' a b False False False
 -- Computes the size of a group.
 group_Size ::		[Int] -> Int
 group_Size [] =		0
-group_Size a =		diff + rest
-			where
-			slice = take 2 a
-			diff = slice!!1 - slice!!0
-			rest = (group_Size (drop 2 a))
+group_Size (a:b:rest) = b - a + group_Size rest
 
 -- Filters a list using a group.
-group_Filter a g =	group_Filter' a gm
+group_Filter a g =	group_Filter' a g_index
 			where
-			gm = group_Index g
+			g_index = group_Index g
 			group_Filter' [] [] = []
 			group_Filter' a [] = []
-			group_Filter' a g = 
-				if beyond_end then []
-				else first ++ rest
-				where
-				index = (head g)
-				beyond_end = index >= (length a)
-				first = [a !! index]
-				rest = (group_Filter' a (tail g))
+			group_Filter' a (g:g_rest) = 
+				if g >= (length a) then []
+				else [a !! g] ++ (group_Filter' a g_rest)
 
 -- Returns a group of the even items.
 group_Even ::		() -> [Int]
