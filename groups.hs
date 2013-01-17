@@ -32,9 +32,12 @@ either expressed or implied, of the FreeBSD Project.
 -}
 
 
+import Data.Dynamic
+
+
 -- This function is used for accessing all the indices contained by a group. 
 group_Index :: 		[Int] -> [Int]
-group_Index a = 	[a!!0 .. a!!1] ++ 
+group_Index a = 	[a!!0 .. (a!!1 - 1)] ++ 
 			if null (drop 2 a) then []
 			else group_Index (drop 2 a)
 
@@ -59,12 +62,12 @@ group_Or a b =		group_Or' a b False False False
 				(if has' /= was then [min] else []) ++ 
 				group_Or' a' b' hasA' hasB' has'
 				where
-					min = group_Min a b
-					a' = (group_Next a min)
-					b' = (group_Next b min)
-					hasA' = if (a!!0 == min) then not hasA else hasA
-					hasB' = if (b!!0 == min) then not hasB else hasB
-					has' = hasA' || hasB'
+				min = group_Min a b
+				a' = (group_Next a min)
+				b' = (group_Next b min)
+				hasA' = if (a!!0 == min) then not hasA else hasA
+				hasB' = if (b!!0 == min) then not hasB else hasB
+				has' = hasA' || hasB'
 
 -- Joins two groups together with Boolean Intersect operation (And).
 group_And ::		[Int] -> [Int] -> [Int]
@@ -78,12 +81,12 @@ group_And a b =		group_And' a b False False False
 				(if has' /= was then [min] else []) ++ 
 				group_And' a' b' hasA' hasB' has'
 				where
-					min = group_Min a b
-					a' = (group_Next a min)
-					b' = (group_Next b min)
-					hasA' = if (a!!0 == min) then not hasA else hasA
-					hasB' = if (b!!0 == min) then not hasB else hasB
-					has' = hasA' && hasB'
+				min = group_Min a b
+				a' = (group_Next a min)
+				b' = (group_Next b min)
+				hasA' = if (a!!0 == min) then not hasA else hasA
+				hasB' = if (b!!0 == min) then not hasB else hasB
+				has' = hasA' && hasB'
 
 -- Joins two groups together with Boolean Subtract operation (Except).
 group_Except ::		[Int] -> [Int] -> [Int]
@@ -97,12 +100,12 @@ group_Except a b =	group_Except' a b False False False
 				(if has' /= was then [min] else []) ++ 
 				group_Except' a' b' hasA' hasB' has'
 				where
-					min = group_Min a b
-					a' = (group_Next a min)
-					b' = (group_Next b min)
-					hasA' = if (a!!0 == min) then not hasA else hasA
-					hasB' = if (b!!0 == min) then not hasB else hasB
-					has' = hasA' && (not hasB')
+				min = group_Min a b
+				a' = (group_Next a min)
+				b' = (group_Next b min)
+				hasA' = if (a!!0 == min) then not hasA else hasA
+				hasB' = if (b!!0 == min) then not hasB else hasB
+				has' = hasA' && (not hasB')
 
 -- Computes the size of a group.
 group_Size ::		[Int] -> Int
@@ -112,4 +115,21 @@ group_Size a =		diff + rest
 			slice = take 2 a
 			diff = slice!!1 - slice!!0
 			rest = (group_Size (drop 2 a))
+
+-- Filters a list using a group.
+group_Filter a g =	group_Filter' a gm
+			where
+			gm = group_Index g
+			group_Filter' [] [] = []
+			group_Filter' a [] = []
+			group_Filter' a g = 
+				first ++ rest
+				where
+				index = (head g)
+				beyond_end = index >= (length a)
+				first = if beyond_end then [] else [a !! index]
+				rest = (group_Filter' a (tail g))
+
+
+
 
